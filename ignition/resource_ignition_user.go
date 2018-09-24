@@ -1,7 +1,7 @@
 package ignition
 
 import (
-	"github.com/coreos/ignition/config/v2_1/types"
+	"github.com/coreos/ignition/config/v2_2/types"
 	"github.com/hashicorp/terraform/helper/schema"
 )
 
@@ -108,7 +108,7 @@ func buildUser(d *schema.ResourceData, c *cache) (string, error) {
 		HomeDir:      d.Get("home_dir").(string),
 		NoCreateHome: d.Get("no_create_home").(bool),
 		PrimaryGroup: d.Get("primary_group").(string),
-		Groups:       castSliceInterfaceToPasswdUserGroup(d.Get("groups").([]interface{})),
+		Groups:       castSliceInterfaceToGroup(d.Get("groups").([]interface{})),
 		NoUserGroup:  d.Get("no_user_group").(bool),
 		NoLogInit:    d.Get("no_log_init").(bool),
 		Shell:        d.Get("shell").(string),
@@ -126,14 +126,14 @@ func buildUser(d *schema.ResourceData, c *cache) (string, error) {
 	return c.addUser(&user), handleReport(user.Validate())
 }
 
-func castSliceInterfaceToPasswdUserGroup(i []interface{}) []types.PasswdUserGroup {
-	var res []types.PasswdUserGroup
+func castSliceInterfaceToGroup(i []interface{}) []types.Group {
+	var res []types.Group
 	for _, g := range i {
 		if g == nil {
 			continue
 		}
 
-		res = append(res, types.PasswdUserGroup(g.(string)))
+		res = append(res, types.Group(g.(string)))
 	}
 	return res
 }

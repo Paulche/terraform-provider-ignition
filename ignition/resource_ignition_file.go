@@ -4,7 +4,7 @@ import (
 	"encoding/base64"
 	"fmt"
 
-	"github.com/coreos/ignition/config/v2_1/types"
+	"github.com/coreos/ignition/config/v2_2/types"
 	"github.com/hashicorp/terraform/helper/schema"
 )
 
@@ -21,6 +21,17 @@ func resourceFile() *schema.Resource {
 			"path": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
+				ForceNew: true,
+			},
+			"overwrite": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
+				Default:  true,
+			},
+			"append": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
 				ForceNew: true,
 			},
 			"content": &schema.Schema{
@@ -147,21 +158,34 @@ func buildFile(d *schema.ResourceData, c *cache) (string, error) {
 		return "", err
 	}
 
+	overwrite := d.Get("overwrite").(bool)
+	append := d.Get("append").(bool)
+
+	if overwrite && append {
+		return "", fmt.Errorf("overwrite and append options are incompatible")
+	}
+
+	file.Overwrite = &overwrite
+	file.Append = append
+
 	file.Contents = contents
 
-	file.Mode = d.Get("mode").(int)
+	mode := d.Get("mode").(int)
+	file.Mode = &mode
 	if err := handleReport(file.ValidateMode()); err != nil {
 		return "", err
 	}
 
 	uid := d.Get("uid").(int)
+	user := types.NodeUser{ID: &uid}
 	if uid != 0 {
-		file.User = types.NodeUser{ID: &uid}
+		file.User = &user
 	}
 
 	gid := d.Get("gid").(int)
+	group := types.NodeGroup{ID: &gid}
 	if gid != 0 {
-		file.Group = types.NodeGroup{ID: &gid}
+		file.Group = &group
 	}
 
 	return c.addFile(file), nil

@@ -1,7 +1,7 @@
 package ignition
 
 import (
-	"github.com/coreos/ignition/config/v2_1/types"
+	"github.com/coreos/ignition/config/v2_2/types"
 	"github.com/hashicorp/terraform/helper/schema"
 )
 
@@ -18,6 +18,11 @@ func resourceLink() *schema.Resource {
 			"path": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
+				ForceNew: true,
+			},
+			"overwrite": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
 				ForceNew: true,
 			},
 			"target": &schema.Schema{
@@ -70,15 +75,20 @@ func buildLink(d *schema.ResourceData, c *cache) (string, error) {
 	link.Target = d.Get("target").(string)
 	link.Hard = d.Get("hard").(bool)
 
+	overwrite := d.Get("overwrite").(bool)
+	link.Overwrite = &overwrite
+
 	uid := d.Get("uid").(int)
+	user := types.NodeUser{ID: &uid}
 	if uid != 0 {
-		link.User = types.NodeUser{ID: &uid}
+		link.User = &user
 	}
 
 	gid := d.Get("gid").(int)
+	group := types.NodeGroup{ID: &gid}
 	if gid != 0 {
-		link.Group = types.NodeGroup{ID: &gid}
+		link.Group = &group
 	}
 
-	return c.addLink(link), handleReport(link.Validate())
+	return c.addLink(link), handleReport(link.ValidateTarget())
 }

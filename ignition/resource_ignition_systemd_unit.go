@@ -1,7 +1,7 @@
 package ignition
 
 import (
-	"github.com/coreos/ignition/config/v2_1/types"
+	"github.com/coreos/ignition/config/v2_2/types"
 	"github.com/hashicorp/terraform/helper/schema"
 )
 
@@ -93,7 +93,7 @@ func buildSystemdUnit(d *schema.ResourceData, c *cache) (string, error) {
 	for _, raw := range d.Get("dropin").([]interface{}) {
 		value := raw.(map[string]interface{})
 
-		d := types.Dropin{
+		d := types.SystemdDropin{
 			Name:     value["name"].(string),
 			Contents: value["content"].(string),
 		}

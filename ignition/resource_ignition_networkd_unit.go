@@ -1,7 +1,7 @@
 package ignition
 
 import (
-	"github.com/coreos/ignition/config/v2_1/types"
+	"github.com/coreos/ignition/config/v2_2/types"
 	"github.com/hashicorp/terraform/helper/schema"
 )
 
@@ -19,6 +19,25 @@ func resourceNetworkdUnit() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
+			},
+			"dropin": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+						},
+						"content": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+						},
+					},
+				},
 			},
 		},
 	}
@@ -52,6 +71,21 @@ func buildNetworkdUnit(d *schema.ResourceData, c *cache) (string, error) {
 	unit := &types.Networkdunit{
 		Name:     d.Get("name").(string),
 		Contents: d.Get("content").(string),
+	}
+
+	for _, raw := range d.Get("dropin").([]interface{}) {
+		value := raw.(map[string]interface{})
+
+		dropIn := types.NetworkdDropin{
+			Name:     value["name"].(string),
+			Contents: value["content"].(string),
+		}
+
+		if err := handleReport(dropIn.Validate()); err != nil {
+			return "", err
+		}
+
+		unit.Dropins = append(unit.Dropins, dropIn)
 	}
 
 	return c.addNetworkdUnit(unit), handleReport(unit.Validate())
