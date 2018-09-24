@@ -15,48 +15,43 @@
 package types
 
 import (
-	"errors"
-	"fmt"
-
+	"github.com/coreos/ignition/config/shared/errors"
 	"github.com/coreos/ignition/config/validate/report"
 )
 
-var (
-	ErrCompressionInvalid = errors.New("invalid compression method")
-)
-
-func (f File) ValidateMode() report.Report {
+func (n Raid) ValidateLevel() report.Report {
 	r := report.Report{}
-	if err := validateMode(f.Mode); err != nil {
-		r.Add(report.Entry{
-			Message: err.Error(),
-			Kind:    report.EntryError,
-		})
-	}
-	return r
-}
-
-func (fc FileContents) ValidateCompression() report.Report {
-	r := report.Report{}
-	switch fc.Compression {
-	case "", "gzip":
+	switch n.Level {
+	case "linear", "raid0", "0", "stripe":
+		if n.Spares != 0 {
+			r.Add(report.Entry{
+				Message: errors.ErrSparesUnsupportedForLevel.Error(),
+				Kind:    report.EntryError,
+			})
+		}
+	case "raid1", "1", "mirror":
+	case "raid4", "4":
+	case "raid5", "5":
+	case "raid6", "6":
+	case "raid10", "10":
 	default:
 		r.Add(report.Entry{
-			Message: ErrCompressionInvalid.Error(),
+			Message: errors.ErrUnrecognizedRaidLevel.Error(),
 			Kind:    report.EntryError,
 		})
 	}
 	return r
 }
 
-func (fc FileContents) ValidateSource() report.Report {
+func (n Raid) ValidateDevices() report.Report {
 	r := report.Report{}
-	err := validateURL(fc.Source)
-	if err != nil {
-		r.Add(report.Entry{
-			Message: fmt.Sprintf("invalid url %q: %v", fc.Source, err),
-			Kind:    report.EntryError,
-		})
+	for _, d := range n.Devices {
+		if err := validatePath(string(d)); err != nil {
+			r.Add(report.Entry{
+				Message: errors.ErrPathRelative.Error(),
+				Kind:    report.EntryError,
+			})
+		}
 	}
 	return r
 }

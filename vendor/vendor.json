@@ -239,10 +239,22 @@
 			"revisionTime": "2017-06-09T14:46:27Z"
 		},
 		{
-			"checksumSHA1": "KAInsmSFjCjBEJ+MQfPWgc9G3V8=",
-			"path": "github.com/coreos/ignition/config/v2_1/types",
-			"revision": "ea573e121f720294b1a2b5c9663591386246f3a2",
-			"revisionTime": "2017-09-04T17:14:45Z"
+			"checksumSHA1": "uuct+hQ/NDB5uZ8LfRtDdMG/GGY=",
+			"path": "github.com/coreos/ignition/config/shared/errors",
+			"revision": "0c622aba01ae82d18b77190bd814151c924dec68",
+			"revisionTime": "2018-09-17T22:31:58Z"
+		},
+		{
+			"checksumSHA1": "DCDbUbzwgLdZNtRWYDjHjXkYJ88=",
+			"path": "github.com/coreos/ignition/config/shared/validations",
+			"revision": "0c622aba01ae82d18b77190bd814151c924dec68",
+			"revisionTime": "2018-09-17T22:31:58Z"
+		},
+		{
+			"checksumSHA1": "yHN401DAQqkkJSmTLWcedWZQD10=",
+			"path": "github.com/coreos/ignition/config/v2_2/types",
+			"revision": "0c622aba01ae82d18b77190bd814151c924dec68",
+			"revisionTime": "2018-09-17T22:31:58Z"
 		},
 		{
 			"checksumSHA1": "ViLVCc7CzzrGdJINAg8hv98CVkg=",

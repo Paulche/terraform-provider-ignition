@@ -1,4 +1,4 @@
-// Copyright 2016 CoreOS, Inc.
+// Copyright 2018 CoreOS, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,17 +15,13 @@
 package types
 
 import (
-	"errors"
-	"path"
+	"github.com/coreos/ignition/config/validate/report"
 )
 
-var (
-	ErrPathRelative = errors.New("path not absolute")
-)
-
-func validatePath(p string) error {
-	if !path.IsAbs(p) {
-		return ErrPathRelative
+func (c CaReference) ValidateSource() report.Report {
+	err := validateURL(c.Source)
+	if err != nil {
+		return report.ReportFromError(err, report.EntryError)
 	}
-	return nil
+	return report.Report{}
 }

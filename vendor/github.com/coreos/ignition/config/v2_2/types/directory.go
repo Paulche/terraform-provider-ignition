@@ -15,21 +15,23 @@
 package types
 
 import (
-	"fmt"
-
+	"github.com/coreos/ignition/config/shared/errors"
 	"github.com/coreos/ignition/config/validate/report"
 )
 
-func (s Link) Validate() report.Report {
+func (d Directory) ValidateMode() report.Report {
 	r := report.Report{}
-	if !s.Hard {
-		err := validatePath(s.Target)
-		if err != nil {
-			r.Add(report.Entry{
-				Message: fmt.Sprintf("problem with target path %q: %v", s.Target, err),
-				Kind:    report.EntryError,
-			})
-		}
+	if err := validateMode(d.Mode); err != nil {
+		r.Add(report.Entry{
+			Message: err.Error(),
+			Kind:    report.EntryError,
+		})
+	}
+	if d.Mode == nil {
+		r.Add(report.Entry{
+			Message: errors.ErrPermissionsUnset.Error(),
+			Kind:    report.EntryWarning,
+		})
 	}
 	return r
 }
